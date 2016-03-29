@@ -1,0 +1,88 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Wie niet sterk is, moet omlaag fietsen.</title>
+	<link rel="stylesheet" type="text/css" href="assets/nv.d3.css"></link>
+	<!-- style sheet on github probably has a minified version too. -->
+	<style type="text/css">
+html,
+body {
+	height: 100%;
+	margin: 0;
+	padding: 0;
+	width: 100%;
+}
+#chart svg {
+	height: 300px;
+	width: 100%;
+}
+#map {
+	height: 400px;
+	right: 0px;
+	width: 100%;
+}
+	</style>
+	<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+	<script src="assets/nv.d3.min.js"></script>
+	<script type="text/javascript" src="assets/plotdata2.js"></script>
+	<script type="text/javascript" src="assets/loaddata2.js"></script>
+	<script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBuEMM7xR75dRv7JGysNs5SzNjbAs3a4sA&sensor=false"></script>
+	<script type="text/javascript">
+
+
+function load(filename, cb) {
+	var xhr = new XMLHttpRequest();
+	xhr.onload = function() {
+		var json = JSON.parse(xhr.responseText);
+		//var data = json2data(json);
+		cb(json);
+	};
+	xhr.open('get', filename, !!cb);
+	xhr.send();
+}
+
+function initialize() {
+	function ll(t) {
+		return new google.maps.LatLng(t[0], t[1]);
+	}
+	
+	load('data/btracked2.json', function(json) {
+		var path = json.map(ll);
+		console.log(path.length);
+		var opts = {
+			center: path[path.length-1],
+			zoom:   9
+		};
+		var map  = new google.maps.Map(document.getElementById('map'), opts);
+		
+		var path = new google.maps.Polyline({
+			path: json.map(ll),
+			geodesic: true,
+			strokeColor: '#0000FF',
+			strokeOpacity: 0.7,
+			strokeWeight: 3,
+		});
+		path.setMap(map);
+		
+		var data = json2data(json);
+		plotdata(data);
+	});
+}
+
+google.maps.event.addDomListener(window, 'load', initialize);
+
+	</script>
+</head>
+<body>
+
+<div id="view">
+	<div id="map">
+	</div>
+	<div id="chart">
+		<svg></svg>
+	</div>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,210 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<title>A Portrait in Three Dimensions</title>
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Parisienne" />
+	<link rel="stylesheet" type="text/css" href="assets/main.css" />
+	<script id="shader-vs" type="x-shader/x-vertex"> 
+		attribute vec3 aVertexPosition;
+		attribute vec2 aTextureCoord;
+
+		uniform mat4 uMVMatrix;
+		uniform mat4 uPMatrix;
+		uniform bool uUseLighting;
+		
+		varying vec2 vTextureCoord;
+
+		void main(void) {
+			gl_Position   = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+			vTextureCoord = aTextureCoord;
+		}
+	</script>
+	<script id="shader-fs" type="x-shader/x-fragment">
+		precision mediump float;
+
+		varying vec2      vTextureCoord;
+		uniform sampler2D uSampler;
+
+		void main(void) {
+			vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+			gl_FragColor      = vec4(textureColor.rgb, 1);
+		}
+	</script>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="assets/webgl-utils.js"></script>
+	<script type="text/javascript" src="assets/gl-matrix.js"></script>
+	<script type="text/javascript" src="assets/two.js"></script>
+	<script type="text/javascript" src="assets/tri.js"></script>
+	<script type="text/javascript" src="assets/render_gl.js"></script>
+	<script type="text/javascript" src="assets/utils.js"></script>
+	<script type="text/javascript">
+
+jQuery(function($){
+	
+	var canvas  = $('#photo').get(0),
+		gl      = WebGLUtils.setupWebGL(canvas),
+		fld     = 'photos/';
+	
+	function init(vrml, texture){
+		var tri     = triload(vrml, fld);
+		Two.sub(tri.vertices, Two.mean(tri.vertices,1), tri.vertices);
+		Two.sub(tri.vertices, Two.Arr([3,1],[0,30,0]), tri.vertices);
+		trisingleindex(tri);
+		
+		var vshader = $('#shader-vs').text(),
+			fshader = $('#shader-fs').text(),
+			shader  = gl_initshaders(gl, vshader, fshader),
+			camera  = cam_create(canvas);
+		tri.buffers = gl_createmodel(gl, tri);
+		gl_modelsettexture(gl, tri.buffers, texture);
+		
+		// needed for the rendering
+		tri.orientation = mat4.identity();
+		
+		gl.clearColor(0.9176, 0.9059, 0.8627, 1.0);
+		gl.clearDepth(1.0);
+		gl.enable(gl.DEPTH_TEST);
+		gl.depthFunc(gl.LEQUAL);
+		gl.viewport(0, 0, canvas.width, canvas.height);
+		
+		/* constant animation */
+		function tick() {
+			window.requestAnimFrame(tick, canvas);
+			gl_draw(gl, shader, tri, camera);
+		}
+		tick();
+		
+		
+		/* user interaction */
+		
+		function deg2rad(deg){return deg*Math.PI/180;}
+		
+		$(canvas).mousedown(function(evt){
+			var x     = evt.pageX,
+				y     = evt.pageY,
+				R     = mat4.create(tri.orientation);
+			
+			$(document).mouseup(function(evt){
+				$(document)
+					.unbind('mousemove')
+					.unbind('mouseup');
+			});
+			$(document).mousemove(function(evt){
+				var dx = evt.pageX - x,
+					dy = evt.pageY - y,
+					R2 = mat4.identity();
+				
+				mat4.rotate(R2, deg2rad(dx/3), [0,1,0]);
+				mat4.rotate(R2, deg2rad(dy/3), [1,0,0]);
+				mat4.multiply(R2, R, tri.orientation);
+			});
+		});
+	};
+	
+	
+	//if (gl) {
+	//	$.get(fld + 'ZMEAN.wrl', init, 'text');
+	//}
+	if (!gl)
+		return alert('Unfortunately your browser or graphics drivers are ' +
+					'incompatible with the features used by this website.');
+	
+	
+	preload('assets/inlay-focus.png');
+	
+	function vrmlLoader(callback) {
+		this.vrml     = '';
+		this.texture  = null;
+		this.ready    = false;
+		this.callback = callback;
+	}
+	vrmlLoader.prototype.addVRML = function(vrml) {
+		this.vrml = vrml;
+		this.pollReady();
+	};
+	vrmlLoader.prototype.addTexture = function(texture) {
+		this.texture = texture;
+		this.pollReady();
+	};
+	vrmlLoader.prototype.pollReady = function() {
+		this.ready = (!!this.vrml) && (!!this.texture);
+		if (this.ready) {
+			this.callback(this.vrml, this.texture);
+		}
+	};
+	var loader = new vrmlLoader(function(vrml, texture){
+		var $inlay  = $('#upload'),
+			$photo  = $('#photo');
+		$inlay.hide();
+		$photo.show();
+		init(vrml, texture);
+	});
+	
+	$('#upload').bind({
+		dragover: function(evt){
+			evt.stopPropagation();
+			evt.preventDefault();
+			return false;
+		},
+		dragenter: function(){
+			$(this).addClass('focus');
+			return false;
+		},
+		dragleave: function(){
+			// check of not actually entering the upload input element.
+			$(this).removeClass('focus');
+			return false;
+		},
+		drop: function(evt){
+			$(this).removeClass('focus');
+			evt.stopPropagation();
+			evt.preventDefault();
+			evt = evt.originalEvent || evt;
+			var files = evt.files || evt.dataTransfer.files;
+			
+			if (files.length > 2)
+				return alert('Please only upload the .wrl and .jpg files.');
+			
+			for (var i=files.length; i--; ) {
+				if (/\.wrl$/i.test(files[i].name)) {
+					var reader    = new FileReader();
+					reader.onload = function(e) {
+						loader.addVRML(e.target.result);
+					};
+					reader.readAsText(files[i]);
+				}
+				else if (/\.jpg$/i.test(files[i].name)) {
+					readjpg = true;
+					var reader    = new FileReader();
+					reader.onload = function(e) {
+						var image = new Image();
+						image.src = e.target.result;
+						loader.addTexture(image);
+						//loader.addTexture(e.target.result);
+					};
+					reader.readAsDataURL(files[i]);
+				}
+				else
+					return alert('Please only upload the .wrl and .jpg files.');
+			}
+		},
+	});
+});
+	</script>
+</head>
+<body>
+
+<div id="pictureframe">
+	<canvas id="photo" width="360" height="500"></canvas>
+	<form id="upload">
+		<figure id="filmok">
+			<img src="assets/film-ok.png" />
+			<figcaption>.wrl</figcaption>
+		</figure>
+	</form>
+	<div id="tag"></div>
+</div>
+
+</body>
+</html>

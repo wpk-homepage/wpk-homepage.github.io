@@ -1,0 +1,323 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+	<title>everything secure</title>
+	<link rel="stylesheet" type="text/css" href="http://jqueryui.com/themes/base/jquery.ui.all.css" />
+	<style type="text/css">
+html, body, form, fieldset, legend, ol, li {
+	margin: 0;
+	padding: 0;
+}
+body {
+	background-color: white;
+	color: #111111;
+	font-family: Georgia, "Times New Roman", Times, serif;
+	padding: 20px;
+}
+form {
+	background: #9cbc2c;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	padding: 20px;
+	width: 400px;
+}
+form fieldset {
+	border: none;
+	margin-bottom: 10px;
+}
+form fieldset:last-of-type {
+	margin-bottom: 0;
+	margin-top: 25px;
+}
+form legend {
+	color: #384313;
+	font-size: 16px;
+	font-weight: bold;
+	padding-bottom: 10px;
+	text-shadow: 0 1px 1px #c0d576;
+}
+form > fieldset > legend:before {
+	/*content: "Step " counter(fieldsets) ": ";
+	counter-increment: fieldsets;*/
+}
+form fieldset fieldset legend {
+	color: #111111;
+	font-size: 13px;
+	font-weight: normal;
+	padding-bottom: 0;
+}
+
+form ol li {
+	background: #b9cf6a;
+	background: rgba(255,255,255,.3);
+	border-color: #e3ebc3;
+	border-color: rgba(255,255,255,.6);
+	border-style: solid;
+	border-width: 2px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+	border-radius: 5px;
+	line-height: 30px;
+	list-style: none;
+	padding: 5px 10px;
+	margin-bottom: 2px;
+}
+form ol ol li {
+	background: none;
+	border: none;
+	float: left;
+}
+
+form label {
+	float: left;
+	font-size: 13px;
+	width: 110px;
+}
+form fieldset fieldset label {
+	background:none no-repeat left 50%;
+	line-height: 20px;
+	padding: 0 0 0 30px;
+	width: auto;
+}
+form label[for=visa] {
+	background-image: url(visa.gif);
+}
+form label[for=amex] {
+	background-image: url(amex.gif);
+}
+form label[for=mastercard] {
+	background-image: url(mastercard.gif);
+}
+form fieldset fieldset label:hover {
+	cursor: pointer;
+}
+
+form input:not([type=radio]),
+form textarea,
+form select {
+	background: #ffffff;
+	border: none;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	-khtml-border-radius: 3px;
+	border-radius: 3px;
+	font: italic 13px Georgia, "Times New Roman", Times, serif;
+	outline: none;
+	padding: 5px;
+	width: 200px;
+}
+form input:not([type=submit]):focus,
+form textarea:focus,
+form select:focus,
+form select:focus option {
+	background: #eaeaea;
+}
+form input[type=radio] {
+	float: left;
+	margin-right: 5px;
+}
+
+form button {
+	background: #384313;
+	border: none;
+	-moz-border-radius: 20px;
+	-webkit-border-radius: 20px;
+	-khtml-border-radius: 20px;
+	border-radius: 20px;
+	color: #ffffff;
+	display: block;
+	font: 18px Georgia, "Times New Roman", Times, serif;
+	letter-spacing: 1px;
+	margin: auto;
+	padding: 7px 25px;
+	text-shadow: 0 1px 1px #000000;
+	text-transform: uppercase;
+}
+form button:hover {
+	background: #1e2506;
+	cursor: pointer;
+}
+
+
+div#page {
+	margin: auto;
+	width: 400px;
+}
+div#passphrase {
+	background: white;
+	border: none;
+	-moz-border-radius: 20px;
+	-webkit-border-radius: 20px;
+	-khtml-border-radius: 20px;
+	border-radius: 20px;
+	color: black;
+	display: block;
+	font: bold 14px/23px Georgia, "Times New Roman", Times, serif;
+	letter-spacing: 1px;
+	margin: auto;
+	padding: 7px 25px;
+	text-align: center;
+	text-transform: uppercase;
+}
+div#passphrase a {
+	color: black;
+	-moz-box-flex: 1;
+	text-decoration: none;
+}
+	</style>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.22/jquery-ui.min.js"></script>
+	<script type="text/javascript">
+
+function shuffle(arr) {
+	for (var i=0,len=arr.length; i<len; i++) {
+		var j = i + Math.floor(Math.random() * (len-i));
+		arr.splice(i, 1, arr.splice(j, 1, arr[i]));
+	}
+	return arr;
+}
+
+
+var words       = [],
+	words_ready = true;
+
+function loadwordlist(filename) {
+	words_ready = false;
+	jQuery.get(filename, function(data){
+		words       = jQuery.trim(data).split('\n');
+		words_ready = true;
+	}, 'text');
+}
+
+
+function makepassphrase(wlen, vsize, plen) {
+	// precondition
+	if (!words_ready)
+		return alert('Please wait for the word list to load...');
+	
+	// reduce lexicon
+	var lexicon  = $.grep(words, function(word) {
+			var len = word.length;
+			return len <= wlen;
+		});
+	
+	lexicon      = lexicon.slice(0, vsize);
+	
+	// create random password
+	return shuffle(lexicon).slice(0, plen);
+}
+
+
+jQuery(function($){
+
+$('form').submit(function(){
+	var wlen   = parseInt($('#wordlength').val()),
+		vsize  = parseInt($('#vocabularysize').val()),
+		plen   = parseInt($('#phraselength').val());
+	
+	var passphrase = makepassphrase(wlen, vsize, plen);
+	
+	var $display   = $('<div id="passphrase"></div>');
+	
+	for (var i=0; i<passphrase.length; i++) {
+		if (i) $display.append(' - ');
+		$('<a></a>')
+			.text(passphrase[i])
+			.attr({'href':'http://nl.wiktionary.org/wiki/'+
+						encodeURI(passphrase[i]), 'target':'_blank'})
+			.appendTo($display);
+	}
+	
+	$('button').replaceWith($display);
+	return false;
+});
+
+$('#dictionary')
+	.change(function(){
+		loadwordlist('sources/' + $(this).val() + '.lst');
+	})
+	.change();
+
+var $wl       = $('#wordlength'),
+	minlen    = parseInt($wl.attr('min')),
+	maxlen    = parseInt($wl.attr('max')),
+	length    = parseInt($wl.val()) || 6,
+	$wlslider = $('<div>')
+		.css({display:'inline-block', width:'200px'})
+		.slider({
+			range: 'max',
+			min:   minlen,
+			max:   maxlen,
+			value: length,
+			slide: function(event, ui){
+				$wl.val(ui.value);
+			}
+		});
+$wl.val(length).hide().parent().append($wlslider);
+
+var $vs       = $('#vocabularysize'),
+	minsize   = parseInt($vs.attr('min')),
+	maxsize   = parseInt($vs.attr('max')),
+	size      = parseInt($vs.val()) || 12000,
+	$vsslider = $('<div>')
+		.css({display:'inline-block', width:'200px'})
+		.slider({
+			range: 'max',
+			min:   minsize,
+			max:   maxsize,
+			value: size,
+			step:  2000,
+			slide: function(event, ui){
+				$vs.val(ui.value);
+			}
+		});
+$vs.val(size).hide().parent().append($vsslider);
+});
+	</script>
+</head>
+<body>
+
+<div id="page">
+	<header>
+		<h1>a <i>strong</i> password</h1>
+	</header>
+	<form method="post" action="#">
+		<fieldset>
+			<legend>Dictionary</legend>
+			<ol>
+				<li>
+					<label for="dictionary">Language</label>
+					<select name="dictionary" id="dictionary">
+						<option value="wiktionary">English</option>
+						<option value="opentaal">Dutch</option>
+					</select>
+				</li>
+			</ol>
+		</fieldset>
+		<fieldset>
+			<legend>Pass phrase</legend>
+			<ol>
+				<li>
+					<label for="wordlength">Word length</label>
+					<input type="number" name="wordlength" id="wordlength" placeholder="up to # characters" min="1" max="12" />
+				</li>
+				<li>
+					<label for="vocabularysize">Complexity</label>
+					<input type="number" name="vocabularysize" id="vocabularysize" placeholder="the # most common words" min="8000" max="20000" />
+				</li>
+				<li>
+					<label for="phraselength">Words</label>
+					<input type="number" name="phraselength" id="phraselength" value="4" min="1" max="10" />
+				</li>
+			</ol>
+		</fieldset>
+		<fieldset>
+			<button type="submit">Generate!</button>
+		</fieldset>
+	</form>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html ng-app="AlarmBlock">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=800, initial-scale=0.5">
+  <title>AlarmBlock</title>
+  <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Raleway:400,100">
+  <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="clock.css">
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+  <script type="text/javascript" src="ui-bootstrap-custom-tpls-0.13.0.min.js"></script>
+  <script type="text/javascript" src="https://cdn.rawgit.com/gdi2290/angular-websocket/v1.0.9/angular-websocket.min.js"></script>
+  <script type="text/javascript" src="https://cdn.rawgit.com/danielstern/ngAudio/1.6.2/app/angular.audio.js"></script>
+  <script type="text/javascript">
+
+(function(){
+  var app = angular.module('AlarmBlock', ['ui.bootstrap', 'ngWebSocket', 'ngAudio']);
+
+  app.factory('BlockChainInfo', function($q, $websocket){
+    var dataStream = null;
+    var deferredBlock = $q.defer();
+    
+    var handlers = {
+      onMessage: function(message){
+        console.log('dataStream.onMessage');
+        var msg = JSON.parse(message.data);
+        var oldPromise = deferredBlock;
+        deferredBlock = $q.defer();
+        oldPromise.resolve(msg);
+      },
+      onOpen: function(){
+        console.log('dataStream.onOpen');
+        // Subscribe to new blocks.
+        var message = JSON.stringify({"op":"blocks_sub"});
+        dataStream.send(message);
+      },
+      onClose: function(){
+        console.log('dataStream.onClose');
+        // Reconnect.
+        connect();
+      },
+      onError: function(){
+        console.log('dataStream.onError');
+      },
+    };
+    
+    function connect() {
+      dataStream = $websocket('wss://ws.blockchain.info/inv');
+      for (var evt in handlers)
+        dataStream[evt](handlers[evt]);
+    }
+    connect();
+    
+    var methods = {
+      currentBlock: function(){
+        var message = JSON.stringify({"op":"ping_block"});
+        return $q.all([dataStream.send(message), deferredBlock.promise])
+                .then(function(args){return args[1].x;});
+      },
+      nextBlock: function(){
+        return deferredBlock.promise.then(function(data){
+          return data.x;
+        });
+      },
+    };
+
+    return methods;
+  });
+
+  
+  app.factory('WindUpClock', function(ngAudio){
+    var sounds = {
+      ting: ngAudio.load('ting.mp3'),
+      tock: ngAudio.load('tock.mp3'),
+      wind: ngAudio.load('wind.mp3'),
+    };
+    
+    var methods = {
+      ting: function(){ sounds.ting.play(); },
+      tock: function(){ sounds.tock.play(); },
+      wind: function(){ sounds.wind.play(); },
+    }
+    
+    return methods;
+  });
+  
+  app.controller('ClockController', function(BlockChainInfo, WindUpClock){
+    var self = this;
+    self.currentheight = 0;
+    self.waittime = 3;
+    
+    self.adjustwaittime =
+    function (waittime){
+      self.waittime = waittime;
+      WindUpClock.wind();
+    };
+    
+    function blockupdate(block){
+      BlockChainInfo.nextBlock().then(blockupdate);
+      
+      var deltatime = self.currentheight - block.height;
+      var remaining = deltatime + self.waittime;
+      self.waittime = Math.max(0, remaining);
+      self.currentheight = block.height;
+      
+      if (remaining == 0) {
+        WindUpClock.ting();  // Ready!
+      } else if (deltatime == -1) {
+        WindUpClock.tock();  // Next block on the block chain.
+      }
+    }
+    
+    BlockChainInfo.currentBlock().then(function(block){
+      self.currentheight = block.height;
+      self.adjustwaittime(self.waittime);
+      return block;
+    }).then(blockupdate);
+  });
+
+  app.controller('FooterController', function($scope, $modal){
+    $scope.showlicense = function(){
+      $modal.open({templateUrl:'license.html', controller:'FooterController'});
+    };
+    $scope.showattribution = function(){
+      $modal.open({templateUrl:'attribution.html'});
+    };
+    $scope.sendto = function(name){
+      return name + '@' + 'paulkoppen.com';
+    };
+  });
+})();
+
+  </script>
+</head>
+<body>
+
+<div class="jumbotron">
+  <div class="container" ng-controller="ClockController as clock">
+    <div class="clock outer_face">
+      <div class="marker m{{hour}}" ng-click="clock.adjustwaittime(hour)" ng-repeat="hour in [1,2,3,4,5,6,7,8,9,10,11,12]"></div>
+      <div class="inner_face" data-content="W.P.K."><!--{{clock.currentheight}}"-->
+        <div class="hand second m{{clock.waittime}}"></div>
+      </div>
+    </div>
+    <div class="clock-label">
+      <h1>Alarm block.</h1>
+      <p class="info">will sound in {{clock.waittime}} blocks time.</p>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <hr>
+  <footer ng-controller="FooterController">
+    <p>
+      &copy; Paul Koppen 2015
+      <span class="attribution"><a ng-click="showlicense()">License</a></span>
+      <span class="attribution"><a ng-click="showattribution()">Used works</a></span>
+      <span class="attribution"><a href="bitcoin:" class="glyphicon glyphicon-piggy-bank" aria-hidden="true"></a></span>
+    </p>
+  </footer>
+</div>
+
+<script type="text/ng-template" id="license.html">
+  <div class="modal-header">
+    <h3 class="modal-title">License (MIT)</h3>
+  </div>
+  <div class="modal-body">
+    <p>Copyright &copy; 2015 Paul Koppen</p>
+    <p>Permission is hereby granted, free of charge, to any person obtaining a
+      copy of this software and associated documentation files (the "Software"),
+      to deal in the Software without restriction, including without limitation
+      the rights to use, copy, modify, merge, publish, distribute, sublicense,
+      and/or sell copies of the Software, and to permit persons to whom the
+      Software is furnished to do so, subject to the following conditions:</p>
+    <p>The above copyright notice and this permission notice shall be included
+      in all copies or substantial portions of the Software.</p>
+    <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+      OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+      MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN
+      NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+      DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+      OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE
+      USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" ng-click="$close()">OK</button>
+  </div>
+</script>
+<script type="text/ng-template" id="attribution.html">
+  <div class="modal-header">
+    <h3 class="modal-title">Attribution</h3>
+  </div>
+  <div class="modal-body">
+    <p>Clock sounds are edited versions of the
+      <a href="https://www.freesound.org/people/nemoDaedalus/packs/4881/">Wind-up
+      Clock</a> sound pack by nemoDaedalus, licensed under the
+      <a href="http://creativecommons.org/licenses/by/3.0/">Attribution
+      License</a>.</p>
+    <p>The HTML5/CSS clockwork is based on the JavascriptKit tutorial
+      <a href="http://www.javascriptkit.com/dhtmltutors/css3clock.shtml">Creating
+      a live CSS clock using CSS3 and requestAnimationFrame()</a>.</p>
+    <p><a href="https://github.com/gdi2290/angular-websocket/">angular-websocket</a>
+      is copyright 2015 by Patrick Stapleton, licensed under the
+      <a href="http://opensource.org/licenses/MIT">MIT License</a>.</p>
+    <p><a href="https://github.com/danielstern/ngAudio">ngAudio</a> is copyright
+      2015 by Daniel Stern, licensed under the
+      <a href="http://opensource.org/licenses/MIT">MIT License</a>.</p>
+    <p>The piggy bank icon is part of the
+      <a href="http://glyphicons.com/">Glyphicons</a> Halflings set, provided
+      for free through Bootstrap.</p>
+  </div>
+  <div class="modal-footer">
+    <button class="btn btn-primary" ng-click="$close()">OK</button>
+  </div>
+</script>
+
+</body>
+</html>

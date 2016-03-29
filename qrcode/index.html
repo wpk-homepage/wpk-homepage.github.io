@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QR Code generator in AngularJS</title>
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+  <script type="text/javascript" src="wpk.qrcode.js"></script>
+</head>
+<body data-ng-app="wpk.qrcode">
+<!-- Note: all ng- properties have been data- prefixed to validate HTML5. -->
+
+<h1>QR Codes On The Fly</h1>
+
+<div id="app" class="column" data-ng-controller="QRDemoController">
+  <div id="textbox">
+    <textarea data-ng-model="text" placeholder="type your text here..."></textarea>
+  </div>
+  <div id="eccbox">
+    ECC Level:
+    <input type="radio" data-ng-model="ecclevel" value="1"/>1
+    <input type="radio" data-ng-model="ecclevel" value="2"/>2
+    <input type="radio" data-ng-model="ecclevel" value="3"/>3
+    <input type="radio" data-ng-model="ecclevel" value="4"/>4
+  </div>
+  <div data-qrcode data-data="text" data-ecclevel="ecclevel"></div>
+  <!-- You can use <qrcode> too, but only <div data-qrcode> is valid HTML5. -->
+</div>
+
+<div id="info" class="column">
+  <h2>Usage</h2>
+  <ul>
+    <li>Include the <a href="https://angularjs.org/">AngularJS</a> library and
+      <a href="wpk.qrcode.js">wpk.qrcode.js</a>.
+    <li>Add CSS for <code>.qrcode</code> and <code>.qrcode.clickable</code>.
+    <li>Add <code>'wpk.qrcode'</code> to your app's dependencies.
+    <li>Embed with<br>
+      <code>&lt;qrcode data=&quot;text&quot;
+        ecclevel=&quot;ecc&quot;&gt;&lt;/qrcode&gt;</code>
+  </ul>
+  <p>The scope variables <code>text</code> and <code>ecc</code> are now bound
+    and watched and the QR code automatically updates whenever either of them
+    changes.</p>
+
+  <h2>Licence</h2>
+  <p>Copyright 2015 <a href="http://paulkoppen.com">Paul Koppen</a>,
+    released under <a href="LICENCE.txt">MIT licence</a>.</p>
+</div>
+
+</body>
+</html>

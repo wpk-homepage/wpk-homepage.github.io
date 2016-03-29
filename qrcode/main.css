@@ -1,0 +1,38 @@
+.column {
+  float: left;
+  width: 400px;
+}
+
+#app {
+  margin-left: 40px;
+  margin-right: 100px;
+  width: 300px;
+}
+#app textarea {
+  background-color: #eee;
+  border: 0;
+  border-radius: 5px;
+  height: 3em;
+  padding: 5px;
+  width: 290px;
+}
+#eccbox {
+  margin-bottom: 20px;
+  text-align: right;
+}
+
+.qrcode {
+  background-color: #eee;
+  height: 300px;
+  width: 300px;
+}
+.qrcode.clickable {
+  cursor: pointer;
+}
+
+code {
+  background-color: #eee;
+  border: 0;
+  border-radius: 2px;
+  padding: 0px 1px;
+}

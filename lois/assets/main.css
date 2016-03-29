@@ -1,0 +1,46 @@
+html {
+	background: #f6e7d2 url(seamless-hot-air-balloon-pattern-2.png);
+	margin: 0px;
+	padding: 0px;
+}
+body {
+	margin: 0px;
+	padding: 0px;
+}
+div#pictureframe {
+	background: url(picture-frame-2.png);	/* 464 x 595 px */
+	height: 595px;
+	margin: 0px auto;
+	/* width+horz padding, height+vert padding = background image */
+	padding: 0px;
+	position: relative;
+	width: 464px;
+}
+canvas#photo {
+	height: 100%;
+	width: 100%;
+}
+div#header {
+	position: absolute;
+	text-align: center;
+	width: 100%;
+	z-index: 1;
+}
+h1#title {
+	background-color: rgba(255,255,128,.5);
+	color: black;
+	font: 3.5em 'Monofett', cursive;
+	margin: 0px;
+	padding: 0px;
+}
+h4#footer {
+	background-color: rgba(255,255,255,.8);
+	color: purple;
+	font: 1.0em/1.2em 'Overlock', cursive;
+	margin: 0px;
+	padding: 10px;
+}
+h4#footer span {
+	margin: 0px 30px;
+	white-space: nowrap;
+}

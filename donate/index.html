@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Thank you!</title>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+  <style type="text/css">
+html {margin:0px; padding:0px;}
+body {margin:0px 20px;}
+
+article        {width:363px; display:flex; flex-wrap:wrap; justify-content:space-between;}
+article header {width:100%; margin-bottom:30px;}
+section.paybox {width:200px;}
+section.qrbox  {width:123px;}
+article footer {width:100%;}
+
+.copyright {color:#aaa;}
+
+/* Must accommodate QR widths 33, 37, 41, 45, 49, and 53. */
+.qrcode {
+  background-color: #eee;
+  border-radius: 3px;
+  height: 123px;
+  width: 123px;
+}
+.qrcode.clickable {
+  cursor: pointer;
+}
+  </style>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.3.15/angular.min.js"></script>
+  <script type="text/javascript" src="http://paulkoppen.com/qrcode/wpk.qrcode.js"></script>
+  <script type="text/javascript" src="http://paulkoppen.com/donate/wpk.donate.js"></script>
+  <script type="text/javascript" src="http://paulkoppen.com/donate/services.js"></script>
+</head>
+<body data-ng-app="wpk.donate">
+
+<!-- web site header. -->
+<!--header></header-->
+
+<!-- page content. -->
+<article data-ng-controller="DonationController">
+  <header>
+    <h1>Thank you!</h1>
+    <p>Thanks for your support. I really appreciate it.</p>
+  </header>
+  <section class="box paybox">
+    <div class="input-group form-group">
+      <label id="amount-label" class="input-group-addon" for="amount"><span class="glyphicon glyphicon-bitcoin" aria-hidden="true"></span></label>
+      <input type="number" data-ng-model="amount" id="amount" class="amount form-control" min="0.001" step="0.001" placeholder="0.00" aria-describedby="amount-label">
+    </div>
+    <div class="form-group">
+      <textarea data-ng-model="message" id="message" class="message form-control" maxlength="140" placeholder="Optional message..."></textarea>
+    </div>
+  </section>
+  <section class="box qrbox">
+    <div class="form-group">
+      <qrcode data="btcuri" ecclevel="1"></qrcode>
+    </div>
+  </section>
+  <footer>
+    <div class="form-group">
+      Click the barcode, or scan it with your Bitcoin wallet app...
+    </div>
+  </footer>
+</article>
+
+<!-- web site footer. -->
+<!--footer>
+  <small class="copyright">
+    Copyright 2015 <a href="http://paulkoppen.com/">Paul Koppen</a>,
+    released under <a href="LICENCE.txt">MIT licence</a>.
+  </small>
+</footer-->
+
+</body>
+</html>

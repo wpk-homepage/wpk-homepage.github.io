@@ -1,0 +1,114 @@
+
+/**********
+ * Outer face
+ */
+
+.outer_face {
+  background: white;
+  border-radius: 100%;
+  box-shadow: inset 0 0 20px gray;
+  position: relative;
+}
+.outer_face .marker {
+  background: gray;
+  cursor: pointer;
+  height: 50%;
+  left: 50%;
+  margin-left: -6px;
+  position: absolute;
+  top: 0;
+  transform-origin: center bottom;
+  width: 12px;
+  z-index: 0;
+}
+.outer_face .marker.m3,
+.outer_face .marker.m6,
+.outer_face .marker.m9,
+.outer_face .marker.m12 {
+  background: black;
+  margin-left: -8px;
+  width: 16px;
+}
+.outer_face .m1  {transform: rotate(30deg);}
+.outer_face .m2  {transform: rotate(60deg);}
+.outer_face .m3  {transform: rotate(90deg);}
+.outer_face .m4  {transform: rotate(120deg);}
+.outer_face .m5  {transform: rotate(150deg);}
+.outer_face .m6  {transform: rotate(180deg);}
+.outer_face .m7  {transform: rotate(210deg);}
+.outer_face .m8  {transform: rotate(240deg);}
+.outer_face .m9  {transform: rotate(270deg);}
+.outer_face .m10 {transform: rotate(300deg);}
+.outer_face .m11 {transform: rotate(330deg);}
+
+/**********
+ * Inner face
+ */
+
+.inner_face {
+  background: white;
+  border-radius: 1000px;
+  height: 88%;
+  left: 6%;
+  position: relative;
+  top: 6%;
+  width: 88%;
+  z-index: 1000;
+}
+.inner_face::before {
+  /* clock center circle small */
+  background: black;
+  border-radius: 18px;
+  box-shadow: 0 0 30px gray;
+  content: "";
+  height: 18px;
+  left: 50%;
+  margin-left: -9px;
+  margin-top: -9px;
+  position: absolute;
+  top: 50%;
+  width: 18px;
+}
+.inner_face::after {
+  color: gray;
+  content: attr(data-content);
+  font-size: 1.3em;
+  font-weight: normal;
+  position: absolute;
+  text-align: center;
+  top: 80%;
+  width: 100%;
+}
+
+/**********
+ * Hands
+ */
+
+.hand,
+.hand.hour {
+  background: black;
+  box-shadow: 0 0 3px gray;
+  height: 30%;
+  left: 50%;
+  margin-left: -2px;
+  position: absolute;
+  top: 20%;
+  transform: rotate(0deg);
+  transform-origin: bottom;
+  transition: 60ms ease-out all;
+  width: 4px;
+  z-index: -1;
+}
+.hand.minute {
+  height: 45%;
+  margin-left: -3px;
+  top: 5%;
+  width: 6px;
+}
+.hand.second {
+  background: red;
+  height: 50%;
+  margin-left: -1px;
+  top: 0;
+  width: 2px;
+}

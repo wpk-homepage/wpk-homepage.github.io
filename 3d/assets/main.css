@@ -1,0 +1,56 @@
+html, body {
+	background: #8b8b8b url(background.jpg);
+}
+div#pictureframe {
+	background: url('picture-frame.png');
+	height: 500px;
+	margin: 0px auto;
+	/* width+horz padding, height+vert padding = background image */
+	padding: 102px 107px 108px 103px;
+	position: relative;
+	width: 360px;
+}
+canvas {
+	background-color: #eae7dc;
+	border: none;
+	display: none;
+	height: 500px;
+	margin: 0px;
+	padding: 0px;
+	width: 360px;
+}
+form#upload {
+	background: #e3dad5 url(inlay.png);
+	display: block;
+	height: 130px;
+	margin: 0px;
+	padding: 360px 30px 10px 30px;
+	text-align: center;
+	width: 300px;
+}
+form#upload.focus {
+	background: #fffbf9 url(inlay-focus.png);
+}
+div#tag {
+	background: url(name-plate.png) no-repeat;
+	font-family: 'Parisienne', cursive;
+	font-size: 0.9em;
+	height: 50px;
+	margin: 25px auto 0px;
+	padding: 13px 7px 7px 22px;
+	width: 210px;
+}
+
+figure#filmok {
+	background: url(film-ok.png) no-repeat;
+	display: none;
+	height: 88px;
+	margin: 0px auto;
+	width: 158px;
+}
+figure#filmok figcaption {
+	color: #525252;
+	font-style: italic;
+	font-variant: small-caps;
+	margin: -65px 92px;
+}

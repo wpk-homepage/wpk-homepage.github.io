@@ -1,0 +1,46 @@
+html, body {
+  font-family: 'Raleway', sans-serif;
+  height: 100%;
+}
+
+.jumbotron {
+  align-items: center;
+  background-color: #eee;
+  display: flex;
+  height: 88%;
+  justify-content: center;
+  margin-bottom: 30px;
+  min-height: 700px;
+}
+
+@media screen and (min-width: 768px)
+.jumbotron {
+  padding: 48px 0;
+}
+
+.jumbotron .container {
+  width: auto;
+}
+.jumbotron p {
+  font-weight:100;
+}
+
+.clock {
+  height: 500px;
+  margin: auto;
+  width: 500px;
+}
+.clock-label {
+  margin-left: 14px;
+}
+
+.attribution {
+  color: #999;
+  margin-left: 40px;
+}
+.attribution::before {
+  content: "— ";
+}
+.attribution a {
+  cursor: pointer;
+}

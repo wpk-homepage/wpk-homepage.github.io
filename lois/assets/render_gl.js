@@ -1,0 +1,146 @@
+
+
+function gl_initshaders(gl, vertexshader_txt, fragmentshader_txt) {
+	var vtxshader  = gl.createShader(gl.VERTEX_SHADER),
+		fragshader = gl.createShader(gl.FRAGMENT_SHADER),
+		shader     = {
+			program:    null,
+			attributes: {},
+			uniforms:   {},
+		};
+	
+	// vertex source
+	gl.shaderSource(vtxshader, vertexshader_txt);
+	gl.compileShader(vtxshader);
+	if (!gl.getShaderParameter(vtxshader, gl.COMPILE_STATUS))
+		return alert(gl.getShaderInfoLog(vtxshader));
+	
+	// fragment source
+	gl.shaderSource(fragshader, fragmentshader_txt);
+	gl.compileShader(fragshader);
+	if (!gl.getShaderParameter(fragshader, gl.COMPILE_STATUS))
+		return alert(gl.getShaderInfoLog(fragshader));
+	
+	// link together
+	shader.program = gl.createProgram();
+	gl.attachShader(shader.program, vtxshader);
+	gl.attachShader(shader.program, fragshader);
+	gl.linkProgram(shader.program);
+	if (!gl.getProgramParameter(shader.program, gl.LINK_STATUS))
+		return alert('Couldn\'t initialise shaders...');
+	
+	gl.useProgram(shader.program);
+	
+	// shader attributes
+	shader.attributes.vertices      = gl.getAttribLocation(shader.program, 'aVertexPosition');
+	shader.attributes.texturecoords = gl.getAttribLocation(shader.program, 'aTextureCoord');
+	gl.enableVertexAttribArray(shader.attributes.vertices);
+	gl.enableVertexAttribArray(shader.attributes.texturecoords);
+	
+	// shader uniforms
+	shader.uniforms.pMatrix      = gl.getUniformLocation(shader.program, 'uPMatrix');
+	shader.uniforms.mvMatrix     = gl.getUniformLocation(shader.program, 'uMVMatrix');
+	shader.uniforms.sampler      = gl.getUniformLocation(shader.program, 'uSampler');
+	
+	return shader;
+}
+
+function gl_createmodel(gl, mesh, onload_callback) {
+	// better name for "model" is "buffers" ?
+	var model = {
+		vertices:      null,
+		texturecoords: null,
+		fragments:     null,
+		texture:       null,
+	};
+	
+	// vertices
+	model.vertices = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.vertices);
+	gl.bufferData(gl.ARRAY_BUFFER, mesh.vertices.data, gl.STATIC_DRAW);
+	// do this?
+	model.vertices.size = mesh.vertices.size;
+	
+	// texture coordinates   (indexed by vertex indices, because OpenGL)
+	model.texturecoords = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, model.texturecoords);
+	gl.bufferData(gl.ARRAY_BUFFER, mesh.texturecoords.data, gl.STATIC_DRAW);
+	model.texturecoords.size = mesh.texturecoords.size;
+	
+	// vertex (and texture) indices
+	model.fragments = gl.createBuffer();
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, model.fragments);
+	gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, mesh.faces.data, gl.STATIC_DRAW);
+	// remember to set itemSize = 1 and numItems = data.length for rendering.
+	model.fragments.size = mesh.faces.size;
+	
+	// texture mapping
+	model.texture = gl.createTexture();
+	var img = new Image();
+	img.onload = function() {
+		gl_modelsettexture(gl, model, img);
+		// and now draw!
+		if (onload_callback)
+			onload_callback(gl, mesh, model);
+	};
+	img.src = mesh.texturefile;
+	
+	return model;
+}
+
+function gl_modelsettexture(gl, model, img) {
+	gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+	gl.bindTexture(gl.TEXTURE_2D, model.texture);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+	gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+	gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+	gl.bindTexture(gl.TEXTURE_2D, null);
+}
+
+function gl_draw(gl, shader, mesh, camera, lights) {
+	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+	
+	// vertices
+	gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffers.vertices);
+	gl.vertexAttribPointer(shader.attributes.vertices, mesh.vertices.size[0], gl.FLOAT, false, 0, 0);
+	
+	// texture coordinates
+	gl.bindBuffer(gl.ARRAY_BUFFER, mesh.buffers.texturecoords);
+	gl.vertexAttribPointer(shader.attributes.texturecoords, mesh.texturecoords.size[0], gl.FLOAT, false, 0, 0);
+	
+	// texture
+	gl.activeTexture(gl.TEXTURE0);	// remove?
+	gl.bindTexture(gl.TEXTURE_2D, mesh.buffers.texture);
+	gl.uniform1i(shader.uniforms.sampler, 0);
+	
+	// indices
+	gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mesh.buffers.fragments);
+	
+	// setmatrixuniforms
+	gl.uniformMatrix4fv(shader.uniforms.pMatrix, false, camera.pMatrix);
+	mat4.identity(camera.mvMatrix);
+	mat4.translate(camera.mvMatrix, [0,0,-400]);
+	mat4.multiply(camera.mvMatrix, mesh.orientation);
+	gl.uniformMatrix4fv(shader.uniforms.mvMatrix, false, camera.mvMatrix);
+	
+	// draw!
+	gl.drawElements(gl.TRIANGLES, mesh.faces.data.length, gl.UNSIGNED_SHORT, 0);
+}
+
+function cam_create(canvas) {
+	var $canvas = $(canvas);
+	var fovy    = 40,
+		ratio   = $canvas.width() / $canvas.height(),
+		close   = 0.1,
+		far     = 800.0;
+	
+	var camera = {
+			pMatrix:      mat4.perspective(fovy, ratio, close, far),
+			mvMatrix:     mat4.identity(),
+		};
+	
+	return camera;
+}
+

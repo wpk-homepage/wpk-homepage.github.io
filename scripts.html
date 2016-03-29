@@ -1,0 +1,145 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+	<link rel="stylesheet" type="text/css" href="assets/master.css" />
+	<link rel="openid2.provider" href="https://www.google.com/accounts/o8/ud?source=profiles"/>
+	<link rel="openid2.local_id" href="http://www.google.com/profiles/115538527270974092663"/>
+	<title>Scripts for convenience by Paul Koppen</title>
+	<link rel="stylesheet" type="text/css" href="http://thumbies.paulkoppen.com/assets/prettify.css" />
+	<style type="text/css">
+code {background-color: #5f5f5f; color: white; margin: 0px 5px; padding: 2px 10px 1px 10px;}
+pre.prettyprint {border: none; margin: 10px 20px 0px;}
+#thumbies-example {margin: 30px 0px 40px;}
+.thumbies-wrap {margin-top: 5px;}
+.thumbies-wrap a {margin-right: 10px;}
+	</style>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.8.1.min.js"></script>
+	<script type="text/javascript" src="http://thumbies.paulkoppen.com/assets/jquery-thumbies.js"></script>
+	<script type="text/javascript" src="http://thumbies.paulkoppen.com/assets/prettify.js"></script>
+	<script type="text/javascript" src="assets/index.js"></script>
+	<script type="text/javascript">/* Google Analytics */
+	var _gaq = _gaq || [];
+	_gaq.push(['_setAccount', 'UA-23167972-1']);
+	_gaq.push(['_setDomainName', '.paulkoppen.com']);
+	_gaq.push(['_trackPageview']);
+	(function() {
+		var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+		ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+		var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+	})();
+	</script>
+	<script type="text/javascript">
+	jQuery(function($){
+		// Example for the Thumbies jQuery plugin
+		var user    = '112717293352090528392',
+			album   = '5785180675340381969',
+			options = {'max-results':5, thumbsize:104, 'link-to':'link'};
+		$('#thumbies-example').thumbies(user, album, options);
+		
+		// Make code more aesthetically pleasing
+		prettyPrint();
+	});
+	</script>
+</head>
+<body>
+
+<div id="page">
+	<div class="wrap" id="header">
+		<h1>Scripts for convenience</h1>
+	</div>
+	<div class="wrap" id="body">
+		<div class="leftcolumn">
+			<img src="images/snowboarden.png" alt="" /><p></p>
+			<!--p class="bgimg" id="unis">University of Surrey</p-->
+		</div>
+		<div class="wideright">
+			<div class="putleft" id="mainaddress">
+				<label>Scripts:</label>
+				<address>
+					<a href="#wp-backup">WordPress Backup</a><br />
+					<a href="#thumbies">Picasa Thumbnails</a><br />
+					<a href="#twit">Twitter Timeline Crawler</a>
+				</address>
+			</div>
+			<div class="putleft" style="float:right;">
+				<label>Author:</label>
+				<address>
+					Paul Koppen<br />
+					<a href="http://paulkoppen.com/">http://paulkoppen.com/</a>
+				</address>
+			</div>
+			<div class="putleft" style="width:100%;">
+				<h2><a name="wp-backup"></a>WordPress Backup</h2>
+				<p>Though my current hosting provider excels at keeping backups, this is certainly
+					not true for all of them. This very simple Python script creates backups of all
+					important stuff on your <a href="http://wordpress.org/">WordPress blog</a> like
+					your uploaded photos and videos, themes, and database (that holds all your
+					posts, comments, and more). More importantly, it takes <em>no configuration</em>
+					because it reads everything it needs automatically from your WordPress
+					installation.</p>
+				<p>So this is how you run it:
+					<code>wp-backup.py YOUR_WORDPRESS_FOLDER</code><br />
+					and the backup files will be created straight away.</p>
+				<p>And this is where you get it: <a href="download/wp-backup.py">wp-backup.py</a></p>
+			</div>
+			<div class="putleft" style="width:100%;">
+				<h2><a name="thumbies"></a>Thumbies: Picasa Thumbnails</h2>
+				<p><a href="http://thumbies.paulkoppen.com/">Thumbies</a> is a jQuery plugin that
+					renders your Picasa albums in thumbnail view. It is particularly aimed at having
+					your latest album as a widget on your website (e.g. as a blog widget),
+					showcasing some photos with easy access to the whole album on Picasa Web. I
+					think this is best demonstrated with an example.</p>
+				<p id="thumbies-example"></p>
+				<p>The above thumbnails, with album title, and links to the photos in their album,
+					are all rendered with only these few lines of code:</p>
+<pre class="prettyprint lang-js">
+var user    = '112717293352090528392',
+    album   = '5785180675340381969',
+    options = {'max-results':5, thumbsize:104, 'link-to':'link'};
+$('#thumbies-example').thumbies(user, album, options);
+</pre>
+				<p>For more details, more options, more examples, and of course to download the
+					script visit the <a href="http://thumbies.paulkoppen.com/">Thumbies</a>
+					page.</p>
+			</div>
+			<div class="putleft" style="width:100%;">
+				<h2><a name="twit"></a>Twit: Twitter Timeline Crawler</h2>
+				<p>Twit crawls twitter user timelines, extracts and parses all
+					tweets, and writes extracted texts and user mentions to
+					files. Notice that the texts you will crawl come in all the
+					languages of the world (so text files are stored in UTF-8).
+					Usually for language learning you want to have texts in only
+					one language or at least have control over the
+					languages. The user mentions (not &quot;followers&quot;)
+					will be logged separately and can e.g. be used to visualise
+					/ assess social relationships.</p>
+				<p>There is one main script which is used to control a central
+					queue server and possibly many crawler clients. Both the
+					server and crawlers will run as daemon.</p>
+				<ul>
+					<li>Manage the queue:
+						<code>manage.py queue [start|stop|save|bootstrap]</code>
+						where the last two commands can only be run when a queue
+						has already been started.</li>
+					<li>Manage a crawler:
+						<code>manage.py crawl [start|stop]</code>.</li>
+					<li>Configure both in <code>config.py</code> and
+						<code>twitter_keys.py</code> (see comments in those
+						files).</p>
+				</ul>
+				<p><a href="download/twit-20130325.zip">Download here</a> (released 25 March 2013).</p>
+				<p>I have managed to download gigabytes of text with 15
+					computers simultaneously, so this should work quite well.
+					Future releases will distribute the queue server and use
+					some database to hold the queue to free a bit of memory.</p>
+			</div>
+		</div>
+		<div class="clear"></div>
+	</div>
+	<div class="wrap" id="footer"></div>
+</div>
+
+</body>
+</html>

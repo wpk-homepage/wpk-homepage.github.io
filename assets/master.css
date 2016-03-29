@@ -1,0 +1,278 @@
+/* ------ NOTES ---------------------------------------------------------------
+
+Master Screen Style for http://paulkoppen.com.
+
+--------- UPDATE INFO ---------------------------------------------------------
+
+Updated: 25 September, 2009
+
+Updated: 28 April, 2010
+Stripped all colours and bars. Just plain white. Peaceful for the eyes.
+
+Updated: 15 October, 2010
+Added strikethrough class span.strike (under 6b).
+@todo: default mobile css, then script to change for desktops
+
+Updated: 14 June, 2011
+Added Thumbies section (sec. 3b)
+Added h3 (sec. 6b)
+todo from 15 October 2010 still remains
+
+
+--------- CONTENTS ------------------------------------------------------------
+
+1: BODY AND UNIVERSAL RESET
+2: PAGE STRUCTURE
+	a) Contianers
+	b) Header
+	c) Main content
+	d) Footer
+3: SECTION SPECIFIC STYLES
+	a) Home page
+	b) Thumbies
+4: LISTS
+5: FORMS & TABLES
+	a) Standard forms
+	b) Tables for forms
+6: GLOBALS
+	a) Links
+	b) Typography
+8: MISC
+
+---------------------------------------------------------------------------- */
+
+
+
+
+/* 1: BODY AND UNIVERSAL RESET
+============================================================================ */
+
+html, body {
+	height: 100%;
+}
+body {
+	background: white;
+	font: .8em "Lucida Sans", "Lucida Sans Unicode", Lucida, Arial, sans-serif;
+	margin: 0px;
+	padding: 0px;
+}
+
+/* Reset margin and padding for all elements */
+
+* {margin: 0; padding: 0;}
+
+
+/* 2: PAGE STRUCTURE
+============================================================================ */
+
+/* a) Containers */
+
+#page {
+	/*background-color: #8d9987;*/
+	height: auto !important;
+	height: 100%;
+	margin: 0px 200px 0px 134px;
+	min-height: 100%;
+	padding-top: 86px;
+	position: relative;
+}
+.wrap {
+	padding: 21px 42px;
+}
+
+/* b) Header */
+
+#header, #nav {}
+#header h1 {
+	font-size: 1.7em;
+	font-weight: normal;
+	margin: 17px 0px 0px 0px;
+	padding: 0px;
+	text-align: center;
+}
+#nav ul, #nav li {
+	display: inline;
+	list-style-type: none;
+	margin: 0px;
+	padding: 0px;
+}
+#nav a {
+	background-color: #f7ffc8;
+	color: #194800;
+	font-size: .9em;
+}
+
+/* c) Main content */
+
+#body .leftcolumn {
+	clear: left;
+	float: left;
+	margin: 0px 42px 30px 0px;
+	width: 200px;
+}
+#body .wideright {
+	margin-left: 242px;
+}
+#body .putleft {
+	float: left;
+	margin: 15px 0px;
+	width: auto;
+}
+
+/* d) Footer */
+
+#footer {
+	height: 46px;
+}
+
+
+/* 3: SECTION SPECIFIC STYLES
+============================================================================ */
+
+/* a) Home page */
+#body #mainaddress {margin-right: 21px;}
+#uva {background-image: url('../images/uva.png'); height: 73px; width: 200px;}
+#isla {background-image: url('../images/isla.png'); height: 100px; width: 200px;}
+#unis {background-image: url('../images/unis.png'); height: 100px; width: 200px;}
+
+/* b) Thumbies */
+iframe.example {border:5px solid gray; height:240px; margin:10px 0px 0px 20%; width:80%;}
+
+
+/* 4: LISTS
+============================================================================ */
+
+ul,ol {list-style-position: outside;}
+li {margin: 10px 0px 0px 15px;}
+dt {margin: 10px 0px 5px;}
+dd {margin: 0px 0px 0px 50px;}
+
+
+/* 5: FORMS & TABLES
+============================================================================ */
+
+/* a) Standard forms */
+
+form {margin-top: 1em;}
+form.alt {margin: 0;}
+
+label {
+	color: #62574d;
+	text-transform: uppercase;
+}
+
+textarea {font-size: 120%;}
+
+/* b) Tables for forms */
+
+
+/* 6: GLOBALS
+============================================================================ */
+
+/* a) Links */
+
+a:link, a:visited {
+	border-bottom: 1px solid #a1cfd4;
+	color: #069;
+	text-decoration: none;
+}
+a:link.img, a:hover.img, a:visited.img {border: none; background: none;}
+a.link {color: #069; border: none; background: none;}
+a.email {border: none; text-decoration: underline;}
+
+/* b) Typography */
+
+h2, h3 {
+	color: #72371d;
+	font-size: 1.4em;
+	font-weight: normal;
+	margin-top: 0px;
+	padding-top: 0px;
+}
+h3 {
+	font-size: 1.2em;
+}
+h4, h5 {}
+
+p {margin: 12px 0px 0px 0px;}
+p.big {font-size: 13px;}
+p.small {font-size: 11px; color: #999; margin-bottom: 10px;}
+p.center {text-align: center;}
+
+em.highlight {background: #eeffbf; font-style: normal;}
+em.help {color: #4d5762; font-style: normal; font-weight: bold;}
+
+span.small {color: #999; font-size: 11px;}
+span.note {margin-left: 20px; color: #999; font-size: 11px;}
+span.dim {color: #333333;}
+span.strike {text-decoration: line-through;}
+
+blockquote {}
+	
+abbr, acronym {border-bottom: 1px dotted #666; cursor: help;}
+
+samp {}
+samp em {}
+
+code {
+	color: #11b;
+	font-family: Monaco, 'Courier New', Courier, mono;
+	font-size: 12px;
+}
+
+address {
+	font-style: normal;
+	margin-left: 30px;
+}
+
+
+/* 8: MISC
+============================================================================ */
+
+/* Images */
+
+img {border: none;}
+img.avatar {margin-top: 0;}
+img.thumbnail {
+	float: left;
+	border: 1px solid #546200;
+	margin: 3px 10px 10px 0;
+}
+
+p.bgimg {
+	background-position: 50% 50%;
+	background-repeat: no-repeat;
+	padding: 0px;
+	text-indent: -9999px;
+}
+
+/* Error handling */
+
+div.error {
+	margin-top: 15px;
+	padding: 10px 10px 0 15px;
+	background: #fcffdf url(/assets/icon-error.gif) top left no-repeat;
+	color: #886e37;
+	font-size: 11px;
+	line-height: 150%;
+}
+div.error strong {
+	color: #c00 !important;
+	font: normal 14px 'Helvetica Neue', Arial, Verdana, sans-serif;
+}
+div.error p {margin-bottom: 10px;}
+div.error ul {list-style: square inside; padding: 0 0 15px 15px;}
+
+#no-js {float: left; margin: 30px 0; width: auto;}
+#no-js ol {list-style: decimal inside;}
+
+#errors {list-style: decimal inside; margin: 0 50px 20px;}
+
+/* Clear floats */
+
+.clear {clear: both;}
+
+/* Settings */
+
+.blackOverlay {background: #000;}
+.jqDrag {cursor: move;}

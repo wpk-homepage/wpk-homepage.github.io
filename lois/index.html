@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+<head>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<title>Lois wordt twee!!</title>
+	<link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Monofett|Overlock" />
+	<link rel="stylesheet" type="text/css" href="assets/main.css" />
+	<script id="shader-vs" type="x-shader/x-vertex"> 
+		attribute vec3 aVertexPosition;
+		attribute vec2 aTextureCoord;
+		
+		uniform mat4 uPMatrix;
+		uniform mat4 uMVMatrix;
+		
+		varying vec2 vTextureCoord;
+		
+		void main(void) {
+			gl_Position   = uPMatrix * uMVMatrix * vec4(aVertexPosition, 1.0);
+			vTextureCoord = aTextureCoord;
+		}
+	</script>
+	<script id="shader-fs" type="x-shader/x-fragment">
+		precision mediump float;
+
+		varying vec2      vTextureCoord;
+		uniform sampler2D uSampler;
+
+		void main(void) {
+			vec4 textureColor = texture2D(uSampler, vec2(vTextureCoord.s, vTextureCoord.t));
+			gl_FragColor      = vec4(textureColor.rgb, textureColor.a);
+		}
+	</script>
+	<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.2.min.js"></script>
+	<script type="text/javascript" src="assets/webgl-utils.js"></script>
+	<script type="text/javascript" src="assets/gl-matrix.js"></script>
+	<script type="text/javascript" src="assets/two.js"></script>
+	<script type="text/javascript" src="assets/tri.js"></script>
+	<script type="text/javascript" src="assets/render_gl.js"></script>
+	<script type="text/javascript" src="assets/utils.js"></script>
+	<script type="text/javascript">
+
+jQuery(function($){
+	
+	var canvas  = $('#photo').get(0),
+		gl      = WebGLUtils.setupWebGL(canvas),
+		fld     = 'photos/';
+	
+	function init(vrml, fld){
+		var tri     = triload(vrml, fld),
+			rot     = Two.Arr([3,3], [0.9164037108421326,0.08367035537958145,0.39141207933425903,
+									0.1964195966720581,0.7580488920211792,-0.621917188167572,
+									-0.34874555468559265,0.6468082666397095,0.6782445311546326]);
+		Two.sub(tri.vertices, Two.Arr([3,1],[30,-8,52]), tri.vertices);
+		tri.vertices = Two.mul(rot, tri.vertices);
+		trisingleindex(tri);
+		
+		var vshader = $('#shader-vs').text(),
+			fshader = $('#shader-fs').text(),
+			shader  = gl_initshaders(gl, vshader, fshader),
+			camera  = cam_create(canvas);
+		tri.buffers = gl_createmodel(gl, tri);
+		
+		// needed for the rendering
+		tri.orientation = mat4.identity();
+		
+		//gl.clearColor(0.9647, 0.9059, 0.8235, 1.0);
+		gl.clearColor(0., 0., 0., 0.);	// transparent background requires 0 0 0
+		gl.clearDepth(1.0);
+		gl.enable(gl.DEPTH_TEST);
+		gl.enable(gl.CULL_FACE);
+		gl.depthFunc(gl.LEQUAL);
+		gl.viewport(0, 0, canvas.width, canvas.height);
+		
+		/* constant animation */
+		function tick() {
+			window.requestAnimFrame(tick, canvas);
+			gl_draw(gl, shader, tri, camera);
+		}
+		tick();
+		
+		
+		/* user interaction */
+		
+		function deg2rad(deg){return deg*Math.PI/180;}
+		
+		$(canvas).mousedown(function(evt){
+			var x     = evt.pageX,
+				y     = evt.pageY,
+				R     = mat4.create(tri.orientation);
+			
+			$(document).mouseup(function(evt){
+				$(document)
+					.unbind('mousemove')
+					.unbind('mouseup');
+			});
+			$(document).mousemove(function(evt){
+				var dx = evt.pageX - x,
+					dy = evt.pageY - y,
+					R2 = mat4.identity();
+				
+				mat4.rotate(R2, deg2rad(dx/3), [0,1,0]);
+				mat4.rotate(R2, deg2rad(dy/3), [1,0,0]);
+				mat4.multiply(R2, R, tri.orientation);
+			});
+		});
+	};
+	
+	
+	if (gl) {
+		$.get(fld + 'Lois_120625175107.wrl', function(vrml){
+			init(vrml, fld);
+		}, 'text');
+	}
+	else {
+		return alert('Helaas, het lukt niet om 3D te laten zien op deze '+
+					'computer. Misschien helpt het om een andere browser '+
+					'te gebruiken.');
+	}
+	
+	
+	
+	/**
+	 * Align the page background pattern with the picture frame background.
+	 */
+	
+	var $pictureframe = $('#pictureframe'),
+		$html         = $('html');
+	$(window)
+		.resize(function(){
+			var offset     = $pictureframe.offset(),
+				offsetX    = offset.left,
+				offsetY    = offset.top,
+				bgPosition = offsetX + 'px ' + offsetY + 'px';
+			$html.css({backgroundPosition: bgPosition});
+		})
+		.resize();
+});
+	</script>
+</head>
+<body>
+
+<div id="header">
+	<h1 id="title">Lois wordt 2!!</h1>
+	<h4 id="footer">
+		<span>En om dat te vieren geeft ze een feestje. Kom ook!</span>
+		<span>Datum: zaterdag 4 augustus,  vanaf 2 uur</span>
+		<span>Locatie: <a href="https://maps.google.com/maps?q=vijverlaan+50,+rotterdam&hl=en&sll=37.0625,-95.677068&sspn=52.418008,60.556641&hnear=Vijverlaan+50,+Kralingen+-+Crooswijk,+Rotterdam,+Zuid-Holland,+The+Netherlands&t=m&z=16">Vijverlaan 50, Rotterdam</a></span>
+	</h4>
+</div>
+<div id="pictureframe">
+	<canvas id="photo" width="928" height="1190"></canvas>
+</div>
+
+</body>
+</html>
